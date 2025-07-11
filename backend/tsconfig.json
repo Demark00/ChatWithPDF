@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",                        // Slightly modern JS (supports optional chaining, nullish coalescing)
+    "module": "commonjs",                      // Keep this if using Node.js require-style modules
+    // "rootDir": "src",                          // Ensures only src gets compiled
+    "outDir": "dist",                          // Output compiled files to dist
+    "resolveJsonModule": true,                 // Needed for importing credentials.json
+    "esModuleInterop": true,                   // Needed for clean imports from CommonJS libs (like firebase-admin)
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}

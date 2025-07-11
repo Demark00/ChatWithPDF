@@ -1,0 +1,26 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+
+# Build output
+dist/
+
+# Uploaded files
+uploads/
+
+# Prisma generated files (if output is custom)
+generated/prisma/
+
+# Firebase credentials (sensitive file)
+firebase/credentials.json
+
+# MacOS + Editor junk
+.DS_Store
+*.log
+*.swp
+
+# Optional: VSCode settings (if personal)
+.vscode/
+
