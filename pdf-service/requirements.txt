@@ -1,0 +1,6 @@
+fastapi
+uvicorn[standard]
+python-multipart
+pillow
+pytesseract
+PyMuPDF==1.23.9  # or whichever version you're using
