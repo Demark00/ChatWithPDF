@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Navbar from "./components/Navbar";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
-import AuthInit from "./AuthInit";
 
 export const metadata: Metadata = {
   title: "Strategic Insight - Ask AI about your PDF",
@@ -19,7 +18,6 @@ export default function RootLayout({
     <html lang="en">
       <body className={`antialiased`}>
         <Toaster position="top-center" reverseOrder={false} />
-        {/* <AuthInit/> */}
         <Navbar />
         {children}
       </body>

@@ -25,10 +25,10 @@ export default function DocumentPage() {
     router.push(`/chat?docId=${id}`);
   };
 
-  const handleCardDelete = async (id: string, e: any) => {
-    e.stopPropagation()
-    await deleteDocument(id)
-  }
+  const handleCardDelete = async (id: string, e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.stopPropagation();
+    await deleteDocument(id);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 p-6">
@@ -52,7 +52,7 @@ export default function DocumentPage() {
           <p className="text-red-500 text-center font-medium">{error}</p>
         )}
 
-        {!loading && documents.length === 0 && (
+        {!loading && !documents && (
           <p className="text-center text-blue-400 text-lg mt-12">
             No documents uploaded yet.
           </p>
@@ -60,7 +60,7 @@ export default function DocumentPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
           {Array.isArray(documents) &&
-            documents.map((doc, index) => (
+            documents.map((doc) => (
                 <Card
                   key={doc.id}
                   className="relative bg-white/90 border-none shadow-xl rounded-2xl cursor-pointer transition hover:scale-[1.03] hover:shadow-2xl hover:bg-blue-50/90 group overflow-hidden"

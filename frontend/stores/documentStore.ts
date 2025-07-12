@@ -14,6 +14,10 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
       const res = await axios.get("/documents");
       set({ documents: res.data.documents, loading: false });
       console.log(res.data)
+      if(!get().documents){
+        toast.error("No Documents Uploaded yet");
+        return;
+      }
       toast.success("Documents Fetched Successfully")
     } catch (err: any) {
       console.error("❌ Failed to fetch documents:", err);
