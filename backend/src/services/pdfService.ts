@@ -1,5 +1,10 @@
 import axios from "axios";
 import FormData from "form-data";
+import dotenv from "dotenv";
+
+dotenv.config(); // Ensure env variables are loaded
+
+const pdfMicroserviceURL = process.env.PDF_MICROSERVICE || "http://localhost:8001";
 
 export const extractTextFromPdf = async (buffer: Buffer): Promise<string> => {
   const form = new FormData();
@@ -10,7 +15,7 @@ export const extractTextFromPdf = async (buffer: Buffer): Promise<string> => {
 
   try {
     const response = await axios.post(
-      "http://localhost:8001/extract-text",
+      `${pdfMicroserviceURL}/extract-text`,
       form,
       {
         headers: form.getHeaders(),

@@ -1,11 +1,25 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import axios from "axios";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
-
-export const getLLMResponse = async (prompt: string): Promise<string>=>{
-    const model = genAI.getGenerativeModel({model:'gemini-1.5-flash'});
-
-    const result = await model.generateContent(prompt)
-    const response = await result.response;
-    return response.text();
-}
+export const getLLMResponse = async (prompt: string, chatHistory: {role:string ; message: string}[]): Promise<string> => {
+  try {
+    const response = await axios.post(
+      "https://api.cohere.ai/v1/chat",
+      {
+        model: "command-r-plus",
+        message: prompt,
+        connectors: [], // optional, use this for search-enabled
+        chat_history: chatHistory,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.COHERE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data.text || "No response from Cohere.";
+  } catch (error: any) {
+    console.error("❌ Error from Cohere API:", error.response?.data || error.message);
+    throw new Error("Failed to get response from Cohere API.");
+  }
+};

@@ -13,7 +13,7 @@ function cosineSim(a: number[], b: number[]): number {
 export const selectRelevantChunks = async (
     documentId: string,
     question: string,
-    topK: number = 5
+    topK: number = 8
 ) => {
     const questionEmbedding = await getEmbedding(question);
 

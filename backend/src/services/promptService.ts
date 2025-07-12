@@ -2,46 +2,58 @@ export const buildPromptFromChunks = (
   chunks: string[],
   question: string
 ): string => {
+  const formattingGuidelines = `
+📌 **Instructions for Answering**:
+- Respond **accurately**, **clearly**, and **concisely**.
+- Use **markdown** formatting only when it enhances readability:
+  - Headings (##), bold (**text**), bullet points (-), numbered steps (1.), etc.
+  - Use inline equations (e.g. \`(a + b)^2 = a^2 + 2ab + b^2\`) for math problems.
+- For short/simple questions (e.g. one-liners, yes/no, definitions), keep it brief.
+- For complex or multi-step questions (e.g. math, logic, analysis), provide a clean, step-by-step solution.
+- If the answer is **not in the document**, rely on your own knowledge, but clearly avoid hallucinating content.
+`;
+
+  const header = `You are a helpful and intelligent AI assistant.`;
+
+  const userQuestion = `**User's Question:**\n${question}`;
+
+  const answerPlaceholder = `**Your Answer:**`;
+
   if (chunks.length === 0) {
-    return `You are a helpful assistant. The user has asked a question based on a PDF document, but no relevant content could be found in the document.
+    return `${header}
 
-Please respond honestly and say that you could not find any matching content in the document. Do not hallucinate.
-and give them the answer based on internet information. And don't forget to tell them that you've gave answer based on internet information.
----
+The user uploaded a PDF, but no relevant content was found.
 
-**User's Question:**  
-${question}
+${formattingGuidelines}
 
 ---
 
-**Your Answer:**`;
+${userQuestion}
+
+---
+
+${answerPlaceholder}`;
   }
 
-  const context = chunks
+  const context = chunks.join("\n\n");
 
-  return `You are a helpful and intelligent AI assistant that helps users understand PDF documents they upload.
+  return `${header}
 
-Always provide clear, structured, and context-aware answers based only on the **PDF content** provided below.
+You are given some PDF content and a user question. Use the PDF if relevant. If not, answer using your own knowledge.
 
-📌 **Important Instructions**:
-- ONLY answer based on the "PDF Context" below.
-- If the answer is not present in the PDF, respond:  
-  _"The answer to this question is not available in the provided document and search for that answer on internet and then also tell them that you're searched for answer from internet."_
-- If the question is some kind of mathematical or solving. You've to solve it and give it's solution.
-- Do **not hallucinate**.
-- Use **markdown formatting** (lists, headings, tables) for clarity.
+${formattingGuidelines}
 
 ---
 
-**PDF Context (Top ${chunks.length} Relevant Chunks):**  
+**PDF Context (Top ${chunks.length} Relevant Chunks):**
+
 ${context}
 
 ---
 
-**User's Question:**  
-${question}
+${userQuestion}
 
 ---
 
-**Your Answer:**`;
+${answerPlaceholder}`;
 };

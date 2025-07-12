@@ -28,6 +28,18 @@ export const chatController = async (req: Request, res: Response) => {
             return;
         }
 
+        // Fetch previous chat history for this document and user
+        const previousMessages = await prisma.chatMessage.findMany({
+            where: { documentId, userId },
+            orderBy: { timestamp: "asc" }
+        })
+
+        // Format chat history for llm
+        const chatHistory = previousMessages.map((msg) => ({
+            role: msg.role === "user" ? "USER" : "CHATBOT",
+            message: msg.content,
+        }));
+
         // Store User Question
         const userMessage = await prisma.chatMessage.create({
             data: {
@@ -40,12 +52,13 @@ export const chatController = async (req: Request, res: Response) => {
 
         // Fetch Document Chunks as Context
         const chunks = await selectRelevantChunks(documentId, question)
+        // console.log(chunks)
 
         // Build prompt using chunks and question
         const prompt = buildPromptFromChunks(chunks.map(c => c.content), question);
 
         // Get LLM Response
-        const llmResponse = await getLLMResponse(prompt)
+        const llmResponse = await getLLMResponse(prompt, chatHistory)
 
         // Store Assistant Response
         const assistantMessage = await prisma.chatMessage.create({
