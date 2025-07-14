@@ -1,6 +1,7 @@
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.responses import PlainTextResponse
 from utils.pdf_extractor import extract_text_from_pdf
 
 app = FastAPI()
@@ -22,3 +23,8 @@ async def extract_text(file: UploadFile = File(...)):
         return {"text":text}
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
+    
+
+@app.get("/health")
+async def health():
+    return PlainTextResponse("OK", status_code=200)
