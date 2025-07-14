@@ -14,14 +14,14 @@ const SignupPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { signup, loading, signInWithGoogle , user} = useAuthStore();
+  const { signup, loading, signInWithGoogle , user, authLoading} = useAuthStore();
   const router = useRouter();
 
   useEffect(()=>{
-    if(user){
+    if(!authLoading && user){
       router.replace('/upload');
     }
-  }, [user, router])
+  }, [user, router, authLoading])
 
   const handleSignup = async () => {
     try {

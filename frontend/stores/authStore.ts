@@ -20,13 +20,14 @@ export const useAuthStore = create<AuthStore>((set) => {
   if (!isInitialized) {
     isInitialized = true;
 
+    set({authLoading: true});
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         const token = await getIdToken(user);
         Cookies.set("token", token, { path: "/", expires: 1 / 24 }); // 1 hour
-        set({ user: { uid: user.uid, email: user.email ?? "" } });
+        set({ user: { uid: user.uid, email: user.email ?? "" }, authLoading: false });
       } else {
-        set({ user: null });
+        set({ user: null, authLoading: false });
         Cookies.remove("token");
       }
     });
@@ -34,6 +35,7 @@ export const useAuthStore = create<AuthStore>((set) => {
 
   return {
     user: null,
+    authLoading: true,
     loading: false,
 
     setUser: (user) => set({ user }),
