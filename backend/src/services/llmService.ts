@@ -1,5 +1,4 @@
 import axios from "axios";
-import { cleanCohereResponse } from "./cleanResponse";
 
 export const getLLMResponse = async (prompt: string, chatHistory: {role:string ; message: string}[]): Promise<string> => {
   try {
@@ -18,7 +17,7 @@ export const getLLMResponse = async (prompt: string, chatHistory: {role:string ;
         },
       }
     );
-    return cleanCohereResponse(response.data.text) || "No response from Cohere.";
+    return response.data.text || "No response from Cohere.";
   } catch (error: any) {
     console.error("❌ Error from Cohere API:", error.response?.data || error.message);
     throw new Error("Failed to get response from Cohere API.");
