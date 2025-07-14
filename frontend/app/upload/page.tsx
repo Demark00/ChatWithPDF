@@ -1,17 +1,25 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUploadStore } from "@/stores/uploadStore";
 import { FiUpload, FiFileText, FiCheckCircle } from "react-icons/fi";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/stores/authStore";
 
 const UploadPage = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { file, setFile, uploading, uploadFile } = useUploadStore();
+  const {user} = useAuthStore()
   const router = useRouter();
+
+  useEffect(()=>{
+    if(!user){
+      router.replace('/login');
+    }
+  }, [user, router])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState , useEffect} from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,8 +14,14 @@ const SignupPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { signup, loading, signInWithGoogle } = useAuthStore();
+  const { signup, loading, signInWithGoogle , user} = useAuthStore();
   const router = useRouter();
+
+  useEffect(()=>{
+    if(user){
+      router.replace('/upload');
+    }
+  }, [user, router])
 
   const handleSignup = async () => {
     try {

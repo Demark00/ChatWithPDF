@@ -13,8 +13,10 @@ import ReactMarkdown from "react-markdown";
 import { FaFilePdf, FaRegClock } from "react-icons/fa";
 import { useDocumentStore } from "@/stores/documentStore";
 import { useAuthStore } from "@/stores/authStore";
+import { useRouter } from "next/navigation";
 
 const ChatWrapper = () => {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const docId = searchParams.get("docId");
   const { user } = useAuthStore();
@@ -29,6 +31,12 @@ const ChatWrapper = () => {
   const currentDoc = Array.isArray(documents)
     ? documents.find((doc) => doc.id === docId)
     : null;
+
+  useEffect(() => {
+    if (!user) {
+      router.replace("/login");
+    }
+  }, [user, router]);
 
   useEffect(() => {
     if (docId) {
@@ -106,7 +114,11 @@ const ChatWrapper = () => {
                     className={`p-3 sm:p-4 text-sm sm:text-base break-words whitespace-pre-wrap w-full overflow-hidden ${
                       msg.sender !== "user" ? "overflow-x-auto" : ""
                     }`}
-                    style={msg.sender !== "user" ? { WebkitOverflowScrolling: "touch" } : {}}
+                    style={
+                      msg.sender !== "user"
+                        ? { WebkitOverflowScrolling: "touch" }
+                        : {}
+                    }
                   >
                     <ReactMarkdown>{msg.text}</ReactMarkdown>
                   </CardContent>
