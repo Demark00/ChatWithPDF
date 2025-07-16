@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDocumentStore } from "@/stores/documentStore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -14,12 +14,29 @@ import {
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 import Link from "next/link";
+import toast from "react-hot-toast";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 export default function DocumentPage() {
   const { documents, fetchDocuments, loading, error, deleteDocument } =
     useDocumentStore();
   const { user } = useAuthStore();
   const router = useRouter();
+
+  const [deleteTarget, setDeleteTarget] = useState<null | {
+    id: string;
+    fileName: string;
+  }>(null);
 
   useEffect(() => {
     if (!user) {
@@ -38,12 +55,12 @@ export default function DocumentPage() {
     router.push(`/chat?docId=${id}`);
   };
 
-  const handleCardDelete = async (
-    id: string,
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    e.stopPropagation();
-    await deleteDocument(id);
+  const confirmDelete = async () => {
+    if (deleteTarget) {
+      await deleteDocument(deleteTarget.id);
+      toast.success(`Deleted "${deleteTarget.fileName}"`);
+      setDeleteTarget(null);
+    }
   };
 
   return (
@@ -52,7 +69,7 @@ export default function DocumentPage() {
         <h1 className="text-4xl font-bold mb-8 text-center text-blue-700 flex items-center justify-center gap-2">
           <span role="img" aria-label="books">
             📚
-          </span>{" "}
+          </span>
           Your Uploaded Documents
         </h1>
 
@@ -82,16 +99,13 @@ export default function DocumentPage() {
                 className="relative bg-white/90 border-none shadow-xl rounded-2xl cursor-pointer transition hover:scale-[1.03] hover:shadow-2xl hover:bg-blue-50/90 group overflow-hidden"
                 tabIndex={0}
                 role="button"
-                onClick={() => {
-                  handleCardClick(doc.id);
-                }}
-                aria-label={`Open chat for ${doc.fileName}`}
+                onClick={() => handleCardClick(doc.id)}
                 onKeyDown={(e) =>
                   (e.key === "Enter" || e.key === " ") &&
                   handleCardClick(doc.id)
                 }
+                aria-label={`Open chat for ${doc.fileName}`}
               >
-                {/* Decorative Accent */}
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 via-blue-600 to-blue-400 opacity-80" />
 
                 <CardHeader className="flex flex-row items-center gap-4 pb-2 pt-4">
@@ -103,7 +117,7 @@ export default function DocumentPage() {
                       {doc.fileName}
                     </CardTitle>
                   </div>
-                  {/* Download Button */}
+
                   {doc.storagePath && (
                     <Link
                       href={`https://dvz50l4qq1lty.cloudfront.net/${doc.storagePath}`}
@@ -119,16 +133,56 @@ export default function DocumentPage() {
                       </span>
                     </Link>
                   )}
-                  <button
-                    tabIndex={0}
-                    onClick={(e) => handleCardDelete(doc.id, e)}
-                    aria-label={`Delete ${doc.fileName}`}
-                  >
-                    <span className="flex items-center gap-1 px-3 py-2 rounded-lg bg-gradient-to-r from-red-500 to-red-700 text-white font-semibold shadow hover:from-red-600 hover:to-red-800 transition-all group/download">
-                      <FaTrash className="w-5 h-5 text-white group-hover/download:scale-110 transition-transform" />
-                    </span>
-                  </button>
+
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <button
+                        tabIndex={0}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteTarget({
+                            id: doc.id,
+                            fileName: doc.fileName,
+                          });
+                        }}
+                        aria-label={`Delete ${doc.fileName}`}
+                        className="ml-2 flex items-center gap-1 px-3 py-2 rounded-lg bg-gradient-to-r from-red-500 to-red-700 text-white font-semibold shadow hover:from-red-600 hover:to-red-800 transition-all group/delete focus:outline-none focus:ring-2 focus:ring-red-400"
+                      >
+                        <FaTrash className="w-5 h-5 text-white group-hover/delete:scale-110 transition-transform" />
+                      </button>
+                    </AlertDialogTrigger>
+
+                    <AlertDialogContent
+                      onClick={(e) => e.stopPropagation()}
+                      className="rounded-2xl shadow-2xl bg-white/95 border-none max-w-md"
+                    >
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-blue-700 font-bold">
+                          Are you sure?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="text-blue-500">
+                          This will permanently delete{" "}
+                          <strong className="text-red-600">
+                            {deleteTarget?.fileName}
+                          </strong>
+                          . This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel className="rounded-lg bg-gradient-to-r from-gray-200 to-gray-300 text-gray-700 font-semibold shadow hover:from-gray-300 hover:to-gray-400 transition-all px-4 py-2">
+                          Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={confirmDelete}
+                          className="rounded-lg bg-gradient-to-r from-red-500 to-red-700 text-white font-semibold shadow hover:from-red-600 hover:to-red-800 transition-all px-4 py-2"
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </CardHeader>
+
                 <CardContent className="flex flex-col gap-2 pt-0 pb-4">
                   <div className="flex items-center gap-2">
                     <FaRegClock className="text-blue-400 text-lg" />

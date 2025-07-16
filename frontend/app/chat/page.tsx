@@ -10,6 +10,8 @@ import { useEffect, useRef, useState, Suspense } from "react";
 import { FiSend } from "react-icons/fi";
 import { MdOutlineQuestionAnswer } from "react-icons/md";
 import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeMathjax from "rehype-mathjax";
 import { FaFilePdf, FaRegClock } from "react-icons/fa";
 import { useDocumentStore } from "@/stores/documentStore";
 import { useAuthStore } from "@/stores/authStore";
@@ -60,6 +62,23 @@ const ChatWrapper = () => {
     await sendMessage(input);
     setInput("");
   };
+
+  const fixMathMessages = (text: string): string => {
+  // Convert double dollar ($$...$$) blocks to inline math if they're short
+  text = text.replace(/\$\$([^$]+?)\$\$/g, (match, expr) => {
+    const trimmed = expr.trim();
+    if (trimmed.length < 25 && !trimmed.includes("\n")) {
+      return `\\(${trimmed}\\)`; // Inline math
+    } else {
+      return `$$${trimmed}$$`; // Keep as block math
+    }
+  });
+
+  // Fix any standalone `$...$` that should also be inline LaTeX
+  text = text.replace(/(?<!\$)\$([^\$]+?)\$(?!\$)/g, (_, expr) => `\\(${expr.trim()}\\)`);
+
+  return text;
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 flex flex-col items-center justify-start p-2 sm:p-4">
@@ -120,7 +139,12 @@ const ChatWrapper = () => {
                         : {}
                     }
                   >
-                    <ReactMarkdown>{msg.text}</ReactMarkdown>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkMath]}
+                      rehypePlugins={[rehypeMathjax]}
+                    >
+                      {fixMathMessages(msg.text)}
+                    </ReactMarkdown>
                   </CardContent>
                 </Card>
               </div>
